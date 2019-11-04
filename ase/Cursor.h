@@ -14,14 +14,15 @@ class Cursor {
       void right() {x += width;}
       void draw();
 
+      uint8_t x;
+      uint8_t y;
+      
    private:
       const uint8_t BLINK_RATE = 10;
       const uint8_t REPEAT_LIMIT = BLINK_RATE*3;
 
       uint8_t width;
       uint8_t height;
-      uint8_t x;
-      uint8_t y;
       uint8_t count; 
       uint8_t repeatCount;
 };

@@ -26,8 +26,8 @@ uint8_t mask[1024];
 void setup() {
   arduboy.begin();
   arduboy.setFrameRate(30);
-  cursor.setSize(4,7);
-  cursor.setPos(128-4,64-7);
+  cursor.setSize(4,4);
+  cursor.setPos(31,0);
   Serial.begin(9600);
   for (int i=0; i<1024; i++) {
     sprite[i] = 0;
@@ -41,16 +41,23 @@ void loop() {
   arduboy.pollButtons();
   arduboy.clear();
 
+  arduboy.fillRect(0,0,31,8);
+  arduboy.drawFastVLine(30,0,64);
+  arduboy.drawFastVLine(95,0,64);
+  arduboy.drawFastHLine(95,32,33);
+  font6.setCursor(1,1,true);
+  font6.print("DRAW..");
+  font6.setCursor(97,34,false);
+  font6.print("C: ");
+  font6.print(cursor.x);
+  font6.print(", ");
+  font6.print(cursor.y);
+  font6.print("\nS: 16 x 16");
+  font6.print("\nF: 1 / 8");
+  font6.print("\nL: ");
+  font6.print(arduboy.cpuLoad());
   cursor.directionalButtons();
   cursor.draw();
-  font6.setCursor(0,0);
-  font6.print("VARIABLE WIDTH FONT (6 HIGH):\n\n");
-  font6.print(" !\"#$%&'()*+-./0123456789:;<=>?\n");
-  font6.print("@ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
-  font6.print("[\\]^_\n\n");
-  font6.print("THE QUICK BROWN FOX JUMPS OVER\n");
-  font6.print("THE LAZY DOG.\n");
-  font6.print("A = (5 * 6 + 17) % 3");
   
   arduboy.display();
 }

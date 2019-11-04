@@ -84,6 +84,7 @@ static const unsigned char font[] PROGMEM =
 
 VarFont6::VarFont6() {
   cursorX = cursorY = baseX = 0;
+  inverse = false;
 }
 
 size_t VarFont6::write(uint8_t c) {
@@ -96,8 +97,8 @@ size_t VarFont6::write(uint8_t c) {
 }
 
 size_t VarFont6::printChar(const char c, const int8_t x, int8_t y) {
-  // Index into font
-  uint8_t idx = (c & 0x3f) * 4;
+  // Index into font (map lowercase to uppercase)
+  uint8_t idx = (c & ((c < 96) ? 0x3f : 0x1f)) * 4;
 
   // Y offset
   uint8_t offset = y & 0x7;
@@ -123,20 +124,33 @@ size_t VarFont6::printChar(const char c, const int8_t x, int8_t y) {
     }
 
     if (ptr < WIDTH*(HEIGHT>>3))
-      arduboy.sBuffer[ptr] |= col << offset;
+      if (inverse) {
+        arduboy.sBuffer[ptr] &= ~(col << offset);      
+      } else {
+        arduboy.sBuffer[ptr] |= col << offset;
+      }
     if ((offset > 1) && (ptr + 128 < WIDTH*(HEIGHT>>3))) {
-      arduboy.sBuffer[ptr+128] |= col >> (8 - offset); 
+      if (inverse) {
+        arduboy.sBuffer[ptr+128] &= ~(col >> (8 - offset));
+      } else {
+        arduboy.sBuffer[ptr+128] |= col >> (8 - offset);
+      } 
     }
     if (!useFifth && ((data & 0x80) == 0x80)) {
       return i+1; 
     }
     ptr++;
   }
-  return 5;
+  return 5; // max width
 }
 
-void VarFont6::setCursor(const int8_t x, const int8_t y) {
+void VarFont6::setCursor(const int8_t x, const int8_t y, const bool inv) {
   cursorX = x;
   baseX = x;
   cursorY = y;
+  inverse = inv;
+}
+
+void VarFont6::setInverse(const bool inv) {
+  inverse = inv;
 }
