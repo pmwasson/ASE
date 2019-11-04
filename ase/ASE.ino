@@ -27,7 +27,7 @@ void setup() {
   arduboy.begin();
   arduboy.setFrameRate(30);
   cursor.setSize(4,7);
-  cursor.setPos(0,64-7);
+  cursor.setPos(128-4,64-7);
   Serial.begin(9600);
   for (int i=0; i<1024; i++) {
     sprite[i] = 0;
@@ -44,12 +44,13 @@ void loop() {
   cursor.directionalButtons();
   cursor.draw();
   font6.setCursor(0,0);
-  font6.print("VARIABLE WIDTH FONT (6 HIGH)\n\n");
+  font6.print("VARIABLE WIDTH FONT (6 HIGH):\n\n");
   font6.print(" !\"#$%&'()*+-./0123456789:;<=>?\n");
   font6.print("@ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
   font6.print("[\\]^_\n\n");
-  font6.print("THE QUICK BROWN FOX JUMP OVER\n");
-  font6.print("THE LAZY FOX.");
+  font6.print("THE QUICK BROWN FOX JUMPS OVER\n");
+  font6.print("THE LAZY DOG.\n");
+  font6.print("A = (5 * 6 + 17) % 3");
   
   arduboy.display();
 }

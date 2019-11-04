@@ -4,10 +4,10 @@ extern Arduboy2 arduboy;
 
 // Variable width font: width 1 to 5 + space.  Height is 6 pixels.
 // Each character uses 4 bytes of memory
-// For width 5, uses bits 6&7 of each bytes 1-3 so store final column.
+// For width 5, uses bits 6&7 of each bytes 1-3 to store final column.
 // Byte Bits 7&6
 // 0    00       - width = 2..4
-// 0    10       - width = 1
+// 0    10       - width = 1 (final byte)
 // 0    x1       - width 5
 // 1..3 10       - final column if byte 0, bits 7&6 == 00
 // 1    aa
@@ -59,9 +59,9 @@ static const unsigned char font[] PROGMEM =
   0x1E, 0xA1, 0x00, 0x00,   // ( : 2
   0x21, 0x9E, 0x00, 0x00,   // ) : 2
   0x14, 0x0E, 0x94, 0x00,   // * : 3
-  0x08, 0x1C, 0x88, 0x00,   // + : 3
+  0x04, 0x0E, 0x84, 0x00,   // + : 3
   0x20, 0x90, 0x00, 0x00,   // , : 2 
-  0x08, 0x08, 0x88, 0x00,   // - : 3 
+  0x04, 0x04, 0x84, 0x00,   // - : 3 
   0xA0, 0x00, 0x00, 0x00,   // . : 1
   0x30, 0x0C, 0x83, 0x00,   // / : 3
   0x1E, 0x21, 0x9E, 0x00,   // 0 : 3
