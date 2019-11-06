@@ -21,46 +21,55 @@ void BoxCursor::setSize(const uint8_t x, const uint8_t y) {
   height = y;
 }
 
-void BoxCursor::directionalButtons() {
+bool BoxCursor::directionalButtons() {
   if (arduboy.justPressed(LEFT_BUTTON)) {
     left();
+    return true;
   }
   else if (arduboy.pressed(LEFT_BUTTON)) {
     if (repeatCount++ > REPEAT_LIMIT) {
       repeatCount = REPEAT_LIMIT;
       left();
+      return true;
     }
   }
   else if (arduboy.justPressed(RIGHT_BUTTON)) {
     right();
+    return true;
   }
   else if (arduboy.pressed(RIGHT_BUTTON)) {
     if (repeatCount++ > REPEAT_LIMIT) {
       repeatCount = REPEAT_LIMIT;
       right();
+      return true;
     }
   }
   else if (arduboy.justPressed(UP_BUTTON)) {
     up();
+    return true;
   }
   else if (arduboy.pressed(UP_BUTTON)) {
     if (repeatCount++ > REPEAT_LIMIT) {
       repeatCount = REPEAT_LIMIT;
       up();
+      return true;
     }
   }
   else if (arduboy.justPressed(DOWN_BUTTON)) {
     down();
+    return true;
   }
   else if (arduboy.pressed(DOWN_BUTTON)) {
     if (repeatCount++ > REPEAT_LIMIT) {
       repeatCount = REPEAT_LIMIT;
       down();
+      return true;
     }
   }
   else {
     repeatCount = 0;
   }
+  return false;
 }
 
 void BoxCursor::left() {

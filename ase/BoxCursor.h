@@ -8,7 +8,7 @@ class BoxCursor {
       void setOffset(const uint8_t x, const uint8_t y);
       void setPos(const uint8_t x, const uint8_t y);
       void setSize(const uint8_t x, const uint8_t y);
-      void directionalButtons();
+      bool directionalButtons();
       void up();
       void down();
       void left();
