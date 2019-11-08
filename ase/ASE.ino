@@ -54,6 +54,7 @@ void loop() {
       }
       else {
         mode = modeSubMenu;
+        menu.subSelection = 0;
       }
     }
   }
@@ -68,6 +69,15 @@ void loop() {
           swapFrame(menu.frameCurrent,menu.frameSwapWith);
         }
         menu.subSelection = menu.subFrameCurrent;
+      }
+      else if (menu.mainSelection == menu.mainClear) {
+        if (menu.subSelection == menu.subClearThis) {
+          clearFrame(menu.frameCurrent);
+        }
+        else {
+          clearSprite();
+        }
+        mode = modeMainMenu; // After clearing, return
       }
     }
     if (arduboy.justPressed(A_BUTTON)) {
@@ -163,6 +173,14 @@ void drawCanvas(bool previewOnly) {
           arduboy.drawPixel(cursor.offsetX+x*4+1,cursor.offsetY+y*4+1);
         }
       }
+    }
+  }
+}
+
+void clearFrame(uint8_t frame) {
+  for (int x=0; x<menu.sizeWidth; x++) {
+    for (int y=0; y<menu.sizeHeight; y++) {
+      writeSprite(frame,x,y,0);
     }
   }
 }

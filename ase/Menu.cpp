@@ -9,11 +9,12 @@ bool Menu::mainMenu(bool hasFocus) {
                 "FRAME\n"
                 "MODIFY\n"
                 "PREVIEW\n"
-                "NEW\n"
+                "SIZE\n"
+                "CLEAR\n"
                 "LOAD\n"
                 "SAVE\n"
                 "INFO\n"));
-  highlight(mainSelection,0,mainMenuLeft,mainMenuRight);
+  highlight(mainSelection,0,mainMenuLeft,mainMenuRight,hasFocus);
   if (hasFocus) {
     return readSelectButtons(mainSelection,mainMenuItems);
   }
@@ -21,12 +22,11 @@ bool Menu::mainMenu(bool hasFocus) {
 }
 
 bool Menu::subMenu() {
-  uint8_t top;
+  uint8_t top = mainSelection*highlightYSpacing;
   
   switch(mainSelection) {
     case mainFrame:
-      top = mainSelection*highlightYSpacing;
-      font6.setCursor(subMenuLeft+1,top);
+      font6.setCursor(subMenuLeft+1,top+1);
       font6.print(F("CURRENT\n"
                     "COPY TO\n"
                     "SWAP WITH\n"
@@ -39,7 +39,7 @@ bool Menu::subMenu() {
       font6.print(frameSwapWith);             
       font6.print('\n');
       font6.print(frameTotal);             
-      highlight(subSelection,top,subMenuLeft,subMenuRight);
+      highlight(subSelection,top,subMenuLeft,subMenuRight,true);
       readSelectButtons(subSelection,frameMenuItems);
       if (subSelection == subFrameCurrent) {
         readNumericButtons(frameCurrent,0,frameTotal-1);
@@ -61,6 +61,82 @@ bool Menu::subMenu() {
         return arduboy.justPressed(B_BUTTON);
       }
       return false;
+    case mainSize:  
+      font6.setCursor(subMenuLeft+1,top+1);
+      font6.print(F("WIDTH\n"
+                    "HEIGHT\n"));
+      font6.setCursor(subMenuRight+5,top);
+      font6.print(sizeWidth);
+      font6.print('\n');
+      font6.print(sizeHeight);             
+      highlight(subSelection,top,subMenuLeft,subMenuRight,true);
+      readSelectButtons(subSelection,sizeMenuItems);
+      if (subSelection == subSizeWidth) {
+        readNumericButtons(sizeWidth,1,32);
+      }
+      else if (subSelection == subSizeHeight) {
+        readNumericButtons(sizeHeight,1,32);
+      }
+      return false;
+    case mainClear:  
+      font6.setCursor(subMenuLeft+1,top+1);
+      font6.print(F("THIS FRAME\n"
+                    "ALL FRAMES\n"));
+      highlight(subSelection,top,subMenuLeft,subMenuRight,true);
+      readSelectButtons(subSelection,clearMenuItems);
+      return arduboy.justPressed(B_BUTTON);
+    case mainModify:  
+      font6.setCursor(subMenuLeft+1,top+1);
+      font6.print(F("MODE\n"  // flip, ins, del
+                    "DIR\n"  // LEFT< DOWN, UP, RIGHT
+                    "DO IT!\n"
+                    ));
+      font6.setCursor(subMenuRightShort+5,top);
+
+      if (modifyTransform == modifyTransformFlip) {
+        font6.print(F("FLIP\n"));
+      }
+      else if (modifyTransform == modifyTransformInsert) {
+        font6.print(F("INSERT\n"));
+      }
+      else {
+        font6.print(F("DELETE\n"));
+      }
+
+      if (modifyDirection == modifyDirectionUp) {
+        font6.print(F("UP\n"));
+      }
+      else if (modifyDirection == modifyDirectionRight) {
+        font6.print(F("RIGHT\n"));
+      }
+      else if (modifyDirection == modifyDirectionDown) {
+        font6.print(F("DOWN\n"));
+      }
+      else {
+        font6.print(F("LEFT\n"));        
+      }
+      
+      highlight(subSelection,top,subMenuLeft,subMenuRightShort,true);
+      readSelectButtons(subSelection,modifyMenuItems);
+
+      if (subSelection == subModifyTransform) {
+        readNumericButtons(modifyTransform,0,2);
+      }
+      else if (subSelection == subModifyDirection) {
+        readNumericButtons(modifyDirection,0,3);
+      }
+      else {
+        return arduboy.justPressed(B_BUTTON);
+      }
+      return false;
+    case mainLoad:
+    case mainSave:
+      font6.setCursor(subMenuLeft+1,top+1);
+      font6.print(F("DO IT!\n"
+                    ));
+      highlight(subSelection,top,subMenuLeft,subMenuRightShort,true);
+      return arduboy.justPressed(B_BUTTON);
+
     case mainInfo:
       font6.setCursor(subMenuLeft+1,1);      
       font6.print(F("ARDUBOY SPRITE\n"
@@ -75,7 +151,12 @@ bool Menu::subMenu() {
 }
 
 
-void Menu::highlight(uint8_t selection, uint8_t top, uint8_t left, uint8_t right) {
+void Menu::highlight(uint8_t selection, uint8_t top, uint8_t left, uint8_t right, bool blink) {
+#ifdef BLINKING_CURSOR
+  if (blink && ((arduboy.frameCount % 32) < 16)) {
+    return;
+  }
+#endif
   uint8_t y = top + selection * highlightYSpacing;
   uint8_t offset = y & 0x7;
   for (uint8_t x=left; x < right; x++) {
