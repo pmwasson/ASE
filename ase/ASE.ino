@@ -9,13 +9,14 @@ BoxCursor cursor;
 VarFont6  font6;
 Menu      menu;
 
+static const uint16_t bufferSize = 512;
 static const uint8_t modeMainMenu = 0;
 static const uint8_t modeCanvas = 1;
 static const uint8_t modeSubMenu = 2;
 
 uint8_t width;
 uint8_t height;
-uint8_t sprite[256];
+uint8_t sprite[512];
 uint8_t color;
 uint8_t mode;
 
@@ -31,7 +32,7 @@ void setup() {
 }
 
 void clearSprite() {
-  for (int i=0; i<256; i++) {
+  for (int i=0; i<bufferSize; i++) {
     sprite[i] = 0;
   }  
 }
@@ -79,6 +80,14 @@ void loop() {
         }
         mode = modeMainMenu; // After clearing, return
       }
+      else if (menu.mainSelection == menu.mainSave) {
+        save(menu.subSelection == menu.subSerialWithMask);
+        mode = modeMainMenu; // After saving return
+      }
+      else if (menu.mainSelection == menu.mainLoad) {
+        load(menu.subSelection == menu.subSerialWithMask);
+        mode = modeMainMenu; // After loading
+      }
     }
     if (arduboy.justPressed(A_BUTTON)) {
       mode = modeMainMenu;
@@ -117,7 +126,7 @@ void loop() {
 }
 
 uint16_t spriteIndex(uint8_t frame, uint8_t x, uint8_t y) {
-  return (2*(frame*menu.sizeWidth*menu.sizeHeight/8+x+(y/8)*menu.sizeWidth));
+  return (2*(frame*menu.sizeWidth*((menu.sizeHeight+7)>>3)+x+(y/8)*menu.sizeWidth));
 }
 
 uint8_t readSprite(uint8_t frame, uint8_t x, uint8_t y) {
@@ -201,4 +210,61 @@ void swapFrame(uint8_t frameA, uint8_t frameB) {
       writeSprite(frameB,x,y,temp);
     }
   }
+}
+
+uint16_t frameSize(bool withMask) {
+  return (menu.sizeHeight+7)/8 * menu.sizeWidth * (withMask+1);
+}
+void save(bool withMask) {
+  uint16_t offset = 0;
+  uint8_t increment = withMask ? 1 : 2;
+  uint16_t loopSize = frameSize(withMask);
+  Serial.print(F("const unsigned char PROGMEM sprite[] = {\n"));
+  Serial.print(F("// For load, cut and paste between START and END\n"));
+  if (withMask) {
+    Serial.print(F("// Choose LOAD WITH MASK\n"));
+  }
+  else {
+    Serial.print(F("// Choose LOAD NO MASK\n"));    
+  }
+  Serial.print(F("// START\n"));
+  Serial.print(menu.sizeWidth);
+  Serial.print(F(","));
+  Serial.print(menu.sizeHeight);
+  for (uint8_t frame=0; frame < menu.frameTotal; frame++) {
+    Serial.println(F(","));
+    Serial.print(sprite[offset]);
+    offset += increment;
+    for (uint16_t i=0 ; i < loopSize-1; i++) {
+      Serial.print(F(","));
+      Serial.print(sprite[offset]);
+      offset += increment;
+    }
+  }
+  Serial.println(F("\n// END\n};"));
+}
+
+/* Test:
+8,8,
+126,126,129,255,181,255,161,255,161,255,181,255,129,255,126,126
+ */
+
+uint16_t load(bool withMask) {
+  
+  menu.sizeWidth = Serial.parseInt();
+  menu.sizeHeight = Serial.parseInt();
+  menu.frameCurrent = 0;
+  
+  uint16_t offset = 0;
+  while(Serial.available() && (offset < bufferSize)) {
+    sprite[offset++] = Serial.parseInt();
+    if (!withMask) {
+      sprite[offset] = sprite[offset-1];
+      offset++;
+    }
+  }
+
+  menu.frameTotal = offset/frameSize(withMask);
+
+  return(offset);
 }

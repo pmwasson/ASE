@@ -129,12 +129,20 @@ bool Menu::subMenu() {
         return arduboy.justPressed(B_BUTTON);
       }
       return false;
+    case mainPreview:
+      font6.setCursor(subMenuLeft+1,top+1);
+      font6.print(F("BACKGROUND\n"
+                    "ANIMATE\n"));
+      highlight(subSelection,top,subMenuLeft,subMenuRight,true);
+      readSelectButtons(subSelection,previewMenuItems);
+      return false;
     case mainLoad:
     case mainSave:
       font6.setCursor(subMenuLeft+1,top+1);
-      font6.print(F("DO IT!\n"
-                    ));
-      highlight(subSelection,top,subMenuLeft,subMenuRightShort,true);
+      font6.print(F("WITH MASK\n"
+                    "NO MASK\n"));
+      highlight(subSelection,top,subMenuLeft,subMenuRight,true);
+      readSelectButtons(subSelection,serialMenuItems);
       return arduboy.justPressed(B_BUTTON);
 
     case mainInfo:

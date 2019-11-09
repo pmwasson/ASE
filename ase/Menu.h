@@ -56,6 +56,9 @@ class Menu {
     static const uint8_t modifyDirectionDown = 2;
     static const uint8_t modifyDirectionLeft = 3;
 
+    static const uint8_t subSerialWithMask = 0;
+    static const uint8_t subSerialNoMask = 1;
+
   private:
     // Constants
     static const uint8_t highlightYSpacing = 7; 
@@ -70,6 +73,8 @@ class Menu {
     static const uint8_t sizeMenuItems = 2; 
     static const uint8_t clearMenuItems = 2; 
     static const uint8_t modifyMenuItems = 3; 
+    static const uint8_t previewMenuItems = 2; 
+    static const uint8_t serialMenuItems = 2;
 
     void highlight(uint8_t selection, uint8_t top, uint8_t left, uint8_t right, bool blink);
     bool readSelectButtons(uint8_t &selection, uint8_t selectionMax);
