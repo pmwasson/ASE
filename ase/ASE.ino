@@ -113,6 +113,17 @@ void loop() {
       else if (menu.mainSelection == menu.mainSize) {
         menu.newSize();
       }
+      else if (menu.mainSelection == menu.mainModify) {
+        if (menu.modifyTransform == menu.modifyTransformFlip) {
+          flipFrame(menu.frameCurrent);
+        }
+        else if (menu.modifyTransform == menu.modifyTransformInsert) {
+          insertLine(menu.frameCurrent);
+        }
+        else {
+          deleteLine(menu.frameCurrent);
+        }
+      }
     }
     if (arduboy.justPressed(A_BUTTON)) {
       mode = modeMainMenu;
@@ -172,13 +183,11 @@ void drawScreen() {
   arduboy.drawFastVLine(95,0,64);
   arduboy.drawFastHLine(95,32,33);
 
-  if (menu.previewBackground == menu.previewBackgroundWhite) {
-    arduboy.fillRect(96,0,128,32);
-  }
-  else if (menu.previewBackground == menu.previewBackgroundChecker) {
+  if (menu.previewBackground > menu.previewBackgroundBlack) {
+    uint8_t color = (menu.previewBackground == menu.previewBackgroundWhite) ? 0xff: 0x00;
     for (uint8_t y=0; y<4; y++) {
       for (uint8_t x=96; x<128; x++) {
-        arduboy.sBuffer[x+y*WIDTH] = x%2 ? 0x55 : 0xaa;
+        arduboy.sBuffer[x+y*WIDTH] = color | (x%2 ? 0x55 : 0xaa);
       }
     }
   }
@@ -200,13 +209,35 @@ void drawScreen() {
   font6.print(menu.previewFrame());
 }
 
-void drawPreview() {
+void drawPreview() {  
   uint8_t frame = menu.previewFrame();
-  for (int x=0; x<menu.sizeWidth; x++) {
-    for (int y=0; y<menu.sizeHeight; y++) {
-      uint8_t color = readSprite(frame,x,y);
-      if (color>=2) {
-        arduboy.drawPixel(96+8+x,8+y,color==3 ? WHITE : BLACK);        
+  uint8_t xoffset=16-menu.sizeWidth/2;
+  uint8_t yoffset=16-menu.sizeHeight/2;
+  
+  for (uint8_t x=0; x<32; x++) {
+    if (menu.previewTile || ((x >= xoffset) && (x<(xoffset+menu.sizeWidth)))) {
+      for (uint8_t y=0; y<32; y++) {
+        if (menu.previewTile || ((y >= yoffset) && (y<(yoffset+menu.sizeHeight)))) {
+          uint8_t color = readSprite(frame,(32+x-xoffset)%menu.sizeWidth,(32+y-yoffset)%menu.sizeHeight);
+          if (color>=2) {
+            arduboy.drawPixel(96+x,y,color==3 ? WHITE : BLACK);        
+          }
+        }
+      }
+    }
+  }
+  // Modify cursor
+  if ((mode == modeSubMenu) && (menu.mainSelection == menu.mainModify)) {
+    if ((menu.modifyDirection == menu.modifyDirectionUp) || (menu.modifyDirection == menu.modifyDirectionDown)) {
+      uint8_t y = cursor.cursorY + yoffset;
+      for (uint8_t x=96; x < 128; x++) {
+        arduboy.sBuffer[(y>>3) * WIDTH + x] ^= 1 << (y%8); 
+      }
+    }
+    else {
+      uint8_t x = 96 + cursor.cursorX + xoffset;
+      for (uint8_t y=0; y < 4; y++) {
+        arduboy.sBuffer[y * WIDTH + x] ^= 0xff; 
       }
     }
   }
@@ -256,13 +287,17 @@ void save(bool withMask) {
   uint16_t offset = 0;
   uint8_t increment = withMask ? 1 : 2;
   uint16_t loopSize = menu.frameSize(withMask);
-  Serial.print(F("const unsigned char PROGMEM sprite[] = {\n"));
-  Serial.print(F("// For load, cut and paste between START and END\n"));
+  Serial.print(F("const unsigned char PROGMEM sprite"));
   if (withMask) {
-    Serial.print(F("// Choose LOAD WITH MASK\n"));
+    Serial.print(F("_and_mask"));  
+  }
+  Serial.print(F("[] = {\n"));
+  Serial.print(F("// For load, cut and paste between START and END, and send over serial port\n"));
+  if (withMask) {
+    Serial.print(F("// then choose LOAD WITH MASK\n"));
   }
   else {
-    Serial.print(F("// Choose LOAD NO MASK\n"));    
+    Serial.print(F("// then choose LOAD NO MASK\n"));    
   }
   Serial.print(F("// START\n"));
   Serial.print(menu.sizeWidth);
@@ -293,20 +328,6 @@ const unsigned char PROGMEM sprite[] = {
 248,248,24,248,28,252,60,252,62,254,126,254,127,255,127,255,255,255,127,255,126,255,62,254,60,252,28,252,24,248,248,248,15,15,24,31,24,31,60,63,60,63,126,127,126,127,255,255,254,255,126,127,126,127,60,63,60,63,24,31,24,31,15,15
 // END
 
-
-const unsigned char PROGMEM spriteEyeball[] = {
-// For load, cut and paste between START and END
-// Choose LOAD WITH MASK
-// START
-16,16,
-120,248,140,252,228,252,246,254,162,254,91,255,169,255,21,255,13,255,21,255,173,255,89,255,170,254,242,254,68,252,24,248,3,3,6,7,5,7,13,15,10,15,27,31,22,31,21,31,22,31,21,31,22,31,23,31,26,31,13,15,6,7,3,3,
-120,248,188,252,220,252,238,254,174,254,87,255,167,255,23,255,7,255,23,255,167,255,87,255,174,254,238,254,92,252,24,248,3,3,6,7,5,7,13,15,10,15,27,31,22,31,21,31,22,31,21,31,22,31,23,31,26,31,13,15,6,7,3,3,
-248,248,252,252,124,252,126,254,190,254,63,255,191,255,63,255,63,255,63,255,191,255,63,255,190,254,190,190,60,188,248,248,3,3,6,7,5,7,13,15,10,15,27,31,22,31,21,31,22,31,21,31,22,31,23,31,26,31,13,15,6,7,3,3,
-248,248,252,252,252,252,254,254,254,254,255,255,255,255,255,255,255,255,255,255,255,255,255,255,254,254,254,254,252,252,120,248,2,3,6,7,5,7,13,15,11,15,27,31,23,31,23,31,23,31,23,31,23,31,23,31,27,31,13,15,6,7,3,3
-// END
-};
-
-};
  */
 
 uint16_t load(bool withMask) {
@@ -343,5 +364,99 @@ void loadExample() {
   
   for (uint16_t offset=0; offset < (2 + menu.frameSize(true) * menu.frameTotal); offset++) {
     sprite[offset] = (uint8_t)pgm_read_byte_near(exampleSprite+offset+2);
+  }
+}
+
+void flipFrame(uint8_t frame) {
+  if ((menu.modifyDirection == menu.modifyDirectionRight) || (menu.modifyDirection == menu.modifyDirectionLeft)) {
+    for (uint8_t y=0; y < menu.sizeHeight; y++) {
+      for (uint8_t x=0; x < menu.sizeWidth/2; x++) {
+        uint8_t otherX = menu.sizeWidth - x - 1;
+        uint8_t temp = readSprite(menu.frameCurrent,x,y);
+        writeSprite(frame,x,y,readSprite(frame,otherX,y));
+        writeSprite(frame,otherX,y,temp);
+      }
+    }      
+  }
+  else {
+    for (uint8_t x=0; x < menu.sizeWidth; x++) {
+      for (uint8_t y=0; y < menu.sizeHeight/2; y++) {
+        uint8_t otherY = menu.sizeHeight - y - 1;
+        uint8_t temp = readSprite(menu.frameCurrent,x,y);
+        writeSprite(frame,x,y,readSprite(frame,x,otherY));
+        writeSprite(frame,x,otherY,temp);
+      }
+    }      
+  }
+}
+
+
+void deleteLine(uint8_t frame) {
+  if (menu.modifyDirection == menu.modifyDirectionRight) {
+    for (int8_t y=0; y < menu.sizeHeight; y++) {
+      for (int8_t x=cursor.cursorX; x < menu.sizeWidth; x++) {
+        uint8_t temp = x < (menu.sizeWidth-1) ? readSprite(menu.frameCurrent,x+1,y) : 0;
+        writeSprite(frame,x,y,temp);
+      }
+    }      
+  }
+  else if (menu.modifyDirection == menu.modifyDirectionLeft) {
+    for (int8_t y=0; y < menu.sizeHeight; y++) {
+      for (int8_t x=cursor.cursorX; x >= 0; x--) {
+        uint8_t temp = x > 0 ? readSprite(menu.frameCurrent,x-1,y) : 0;
+        writeSprite(frame,x,y,temp);
+      }
+    }      
+  }
+  else if (menu.modifyDirection == menu.modifyDirectionDown) {
+    for (int8_t x=0; x < menu.sizeWidth; x++) {
+      for (int8_t y=cursor.cursorY; y < menu.sizeHeight; y++) {
+        uint8_t temp = y < (menu.sizeHeight-1) ? readSprite(menu.frameCurrent,x,y+1) : 0;
+        writeSprite(frame,x,y,temp);
+      }
+    }      
+  }
+  else if (menu.modifyDirection == menu.modifyDirectionUp) {
+    for (int8_t x=0; x < menu.sizeWidth; x++) {
+      for (int8_t y=cursor.cursorY; y >= 0; y--) {
+        uint8_t temp = y > 0 ? readSprite(menu.frameCurrent,x,y-1) : 0;
+        writeSprite(frame,x,y,temp);
+      }
+    }
+  }
+}
+
+void insertLine(uint8_t frame) {
+  if (menu.modifyDirection == menu.modifyDirectionRight) {
+    for (int8_t y=0; y < menu.sizeHeight; y++) {
+      for (int8_t x=menu.sizeWidth-1; x > cursor.cursorX; x--) {
+        uint8_t temp = readSprite(menu.frameCurrent,x-1,y);
+        writeSprite(frame,x,y,temp);
+      }
+    }      
+  }
+  else if (menu.modifyDirection == menu.modifyDirectionLeft) {
+    for (int8_t y=0; y < menu.sizeHeight; y++) {
+      for (int8_t x=0; x < cursor.cursorX; x++) {
+        uint8_t temp = readSprite(menu.frameCurrent,x+1,y);
+        writeSprite(frame,x,y,temp);
+      }
+    }      
+  }
+  else if (menu.modifyDirection == menu.modifyDirectionDown) {
+    for (int8_t x=0; x < menu.sizeWidth; x++) {
+      for (int8_t y=menu.sizeHeight-1; y > cursor.cursorY; y--) {
+        uint8_t temp = readSprite(menu.frameCurrent,x,y-1);
+        writeSprite(frame,x,y,temp);
+      }
+    }      
+  }
+  else if (menu.modifyDirection == menu.modifyDirectionUp) {
+    for (int8_t x=0; x < menu.sizeWidth; x++) {
+      for (int8_t y=0; y < cursor.cursorY; y++) {
+        uint8_t temp = readSprite(menu.frameCurrent,x,y+1);
+        writeSprite(frame,x,y,temp);
+      }
+    }
   }
 }

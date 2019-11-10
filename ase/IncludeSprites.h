@@ -1,3 +1,4 @@
+// Eyeball
 static const uint8_t  exampleSpriteFrames = 4;
 const unsigned char PROGMEM exampleSprite[] = {
 // For load, cut and paste between START and END
@@ -10,3 +11,16 @@ const unsigned char PROGMEM exampleSprite[] = {
 248,248,252,252,252,252,254,254,254,254,255,255,255,255,255,255,255,255,255,255,255,255,255,255,254,254,254,254,252,252,120,248,2,3,6,7,5,7,13,15,11,15,27,31,23,31,23,31,23,31,23,31,23,31,23,31,27,31,13,15,6,7,3,3
 // END
 };
+
+
+/*
+// Cute Elf!
+const unsigned char PROGMEM sprite[] = {
+// For load, cut and paste between START and END
+// Choose LOAD WITH MASK
+// START
+16,16,
+0,0,0,0,0,0,135,135,158,158,124,252,212,252,188,252,188,252,212,252,124,252,158,158,135,135,0,0,0,0,0,0,0,0,12,12,158,158,211,223,198,199,244,255,178,255,22,31,22,31,178,255,244,255,198,199,211,215,158,158,12,12,0,0
+// END
+};
+*/

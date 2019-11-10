@@ -256,7 +256,7 @@ uint16_t Menu::frameSize(bool withMask) {
 
 void Menu::newSize() {
   frameMax = min(bufferSize/frameSize(true),64);
-  frameTotal = frameMax; 
+  frameTotal = min(frameMax,8); 
   frameCurrent = 0;
 }
 
