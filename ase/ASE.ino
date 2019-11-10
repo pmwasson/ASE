@@ -1,15 +1,16 @@
 
 #include <Arduboy2.h>
+#include <Sprites.h>
 #include "BoxCursor.h"
 #include "VarFont6.h"
 #include "Menu.h"
+#include "IncludeSprites.h"
 
 Arduboy2  arduboy;
 BoxCursor cursor;
 VarFont6  font6;
 Menu      menu;
 
-static const uint16_t bufferSize = 512;
 static const uint8_t modeMainMenu = 0;
 static const uint8_t modeCanvas = 1;
 static const uint8_t modeSubMenu = 2;
@@ -22,17 +23,24 @@ uint8_t mode;
 
 void setup() {
   arduboy.begin();
-  arduboy.setFrameRate(30);
+  arduboy.setFrameRate(60);
   cursor.setOffset(31,0);
   cursor.setPos(0,0);
   cursor.setSize(16,16);
   Serial.begin(9600);
   mode = modeMainMenu;
+  resetSprite();
+}
+
+void resetSprite() {
+  menu.sizeWidth = 16;
+  menu.sizeHeight = 16;
+  menu.newSize();
   clearSprite();
 }
 
 void clearSprite() {
-  for (int i=0; i<bufferSize; i++) {
+  for (int i=0; i<menu.bufferSize; i++) {
     sprite[i] = 0;
   }  
 }
@@ -41,11 +49,20 @@ void clearSprite() {
 void loop() {
   if (!(arduboy.nextFrame()))
     return;
+
+  // Set up
   arduboy.pollButtons();
   arduboy.clear();
   drawScreen();
-  drawCanvas(mode == modeSubMenu);
-  
+  drawPreview();
+  if (mode != modeSubMenu) {
+    drawCanvas();
+  }
+
+  // Animate
+  menu.previewAnimateOffset += arduboy.everyXFrames(41 - menu.previewAnimate*4);
+
+  // Menu
   bool performAction = menu.mainMenu(mode == modeMainMenu);
   
   if (mode == modeMainMenu) {
@@ -85,8 +102,16 @@ void loop() {
         mode = modeMainMenu; // After saving return
       }
       else if (menu.mainSelection == menu.mainLoad) {
-        load(menu.subSelection == menu.subSerialWithMask);
+        if (menu.subSelection == menu.subSerialExample) {
+          loadExample();
+        }
+        else {
+          load(menu.subSelection == menu.subSerialWithMask);
+        }
         mode = modeMainMenu; // After loading
+      }
+      else if (menu.mainSelection == menu.mainSize) {
+        menu.newSize();
       }
     }
     if (arduboy.justPressed(A_BUTTON)) {
@@ -118,10 +143,7 @@ void loop() {
     if (arduboy.justPressed(A_BUTTON)) {
       mode = modeMainMenu;
     }
-}
-  
-
-
+  }
   arduboy.display();
 }
 
@@ -150,6 +172,17 @@ void drawScreen() {
   arduboy.drawFastVLine(95,0,64);
   arduboy.drawFastHLine(95,32,33);
 
+  if (menu.previewBackground == menu.previewBackgroundWhite) {
+    arduboy.fillRect(96,0,128,32);
+  }
+  else if (menu.previewBackground == menu.previewBackgroundChecker) {
+    for (uint8_t y=0; y<4; y++) {
+      for (uint8_t x=96; x<128; x++) {
+        arduboy.sBuffer[x+y*WIDTH] = x%2 ? 0x55 : 0xaa;
+      }
+    }
+  }
+  
   font6.setCursor(97,33);
   font6.print(F("X:"));
   font6.print(cursor.cursorX);
@@ -163,24 +196,31 @@ void drawScreen() {
   font6.print(menu.frameCurrent);
   font6.print(F(" ("));
   font6.print(menu.frameTotal);
-  font6.print(F(")\nC: "));
-  font6.print(color);
+  font6.print(F(")\nAF: "));
+  font6.print(menu.previewFrame());
 }
 
-void drawCanvas(bool previewOnly) {
+void drawPreview() {
+  uint8_t frame = menu.previewFrame();
+  for (int x=0; x<menu.sizeWidth; x++) {
+    for (int y=0; y<menu.sizeHeight; y++) {
+      uint8_t color = readSprite(frame,x,y);
+      if (color>=2) {
+        arduboy.drawPixel(96+8+x,8+y,color==3 ? WHITE : BLACK);        
+      }
+    }
+  }
+}
+
+void drawCanvas() {
   for (int x=0; x<menu.sizeWidth; x++) {
     for (int y=0; y<menu.sizeHeight; y++) {
       uint8_t color = readSprite(menu.frameCurrent,x,y);
       if (color==3) {
-        arduboy.drawPixel(96+8+x,8+y);        
+        arduboy.fillRect(cursor.offsetX+x*4,cursor.offsetY+y*4,4,4);
       }
-      if (!previewOnly) {
-        if (color==3) {
-          arduboy.fillRect(cursor.offsetX+x*4,cursor.offsetY+y*4,4,4);
-        }
-        else if (color==0) {
-          arduboy.drawPixel(cursor.offsetX+x*4+1,cursor.offsetY+y*4+1);
-        }
+      else if (color==0) {
+        arduboy.drawPixel(cursor.offsetX+x*4+1,cursor.offsetY+y*4+1);
       }
     }
   }
@@ -212,13 +252,10 @@ void swapFrame(uint8_t frameA, uint8_t frameB) {
   }
 }
 
-uint16_t frameSize(bool withMask) {
-  return (menu.sizeHeight+7)/8 * menu.sizeWidth * (withMask+1);
-}
 void save(bool withMask) {
   uint16_t offset = 0;
   uint8_t increment = withMask ? 1 : 2;
-  uint16_t loopSize = frameSize(withMask);
+  uint16_t loopSize = menu.frameSize(withMask);
   Serial.print(F("const unsigned char PROGMEM sprite[] = {\n"));
   Serial.print(F("// For load, cut and paste between START and END\n"));
   if (withMask) {
@@ -279,7 +316,7 @@ uint16_t load(bool withMask) {
   menu.frameCurrent = 0;
   
   uint16_t offset = 0;
-  while(Serial.available() && (offset < bufferSize)) {
+  while(Serial.available() && (offset < menu.bufferSize)) {
     sprite[offset++] = Serial.parseInt();
     if (!withMask) {
       sprite[offset] = sprite[offset-1];
@@ -287,7 +324,24 @@ uint16_t load(bool withMask) {
     }
   }
 
-  menu.frameTotal = offset/frameSize(withMask);
-
+  // Limited error checking
+  if ((menu.sizeWidth < menu.minWidth) || (menu.sizeWidth > menu.maxWidth) || (menu.sizeHeight < menu.minHeight) || (menu.sizeHeight > menu.maxHeight)) {
+    resetSprite();
+  }
+  
+  menu.newSize();
+  menu.frameTotal = offset/menu.frameSize(withMask);
   return(offset);
+}
+
+void loadExample() {  
+  menu.sizeWidth = (uint8_t)pgm_read_byte_near(exampleSprite+0);
+  menu.sizeHeight = (uint8_t)pgm_read_byte_near(exampleSprite+1);
+  menu.frameCurrent = 0;
+  menu.newSize();
+  menu.frameTotal = exampleSpriteFrames;
+  
+  for (uint16_t offset=0; offset < (2 + menu.frameSize(true) * menu.frameTotal); offset++) {
+    sprite[offset] = (uint8_t)pgm_read_byte_near(exampleSprite+offset+2);
+  }
 }
