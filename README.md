@@ -26,6 +26,8 @@ In *Draw Mode*, the UP, DOWN, RIGHT, and LEFT button will move the cursor, the A
   - **Modify**:
   - **Preview**:
   - **Size**: 
+    - **Width**: Sets the width of the sprite in pixels.  Can range in value from 1 to 32.
+    - **Height**: Sets the height of the sprite in pixels.  Can range in value from 1 to 32.  Values not divisible by 8 may not produce good results depending on the library being used to draw the sprite.
   - **Clear**:
   - **Load**:
   - **Save**:
