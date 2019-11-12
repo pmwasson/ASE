@@ -1,15 +1,25 @@
 # ASE - Arduboy Sprite Editor
 
 ## Overview
-ASE lets you edit sprites for use in Arduboy applications.  
+ASE - a sprite editor for Arduboy games that runs on the Arduboy.
 
 ## Layout
 - The screen is divided into 4 parts:
 
   - **Main Menu Pane**: on the left
+    - Select the *Draw*, *Frame*, *Modify*, *Preview*, *Size*, *Clear*, *Load*, *Store* or *Info* menu items.
   - **Draw / Sub-Menu Pane**: in the middle
+    - *Draw* is the main drawing area and where most of the sprite design time is spent.
+    - *Sub-Menu* is shown when a non-draw menu item is selected.
   - **Preview Pane**: in the upper right
+    - Shows the sprite in the actual scale.
+      - Can optionally change the background and whether the sprite is animate and/or tiled.
   - **Info Pane**: in the lower right
+    - Show the following information:
+        - The current X and Y coordinates of the cursor within the sprite.
+        - Size of the sprite, given as "width * height".
+        - Current and total frames given as "current (total)".
+        - Animated frame (AF) being displayed.  If animation is turned off, will be the same as the current Frame.
 
 ## Usage
 
@@ -23,10 +33,10 @@ In *Draw Mode*, the UP, DOWN, RIGHT, and LEFT button will move the cursor, the A
     - **Copy To**: when activated by pressing the B button will copy the current frame to the *Copy To* frame.  Be careful as this will overwrite any previous drawing on the *Copy To* frame.
     - **Swap With**: when activated by pressing the B button will switch the current frame and the *Swap With* frame.
     - **Total**: sets the total number of frames up to a limit imposed by the buffer size.  Note that if the total frames is reduced, the upper frames still exist in the buffer and can be re-accessed by increasing the total.  The total can be set to tune the number of frames in an animation and to be saved.
-  - **Modify**: the *Modify* sub menu lets you change the current frame of the sprite based on the cursor position and a set direction. The cursor psotion is set in the *Draw Mode*. The cursor position is shown in the *Preview Pane* as a horizontal line if the direction is up or down and as a vertical line if the direction is left or right.
+  - **Modify**: the *Modify* sub menu lets you change the current frame of the sprite based on the cursor position and a set direction. The cursor position is set in the *Draw Mode*. The cursor position is shown in the *Preview Pane* as a horizontal line if the direction is up or down and as a vertical line if the direction is left or right.
     - **Mode**:
       - **Flip**: if the direction is up or down, will flip the frame vertically.  If the direction is right or left, will flip the frame horizontally.
-      - **Insert**: Inserts a copy of the pixels on the cusor line show in the *Preview Pane* and moves the existing lines in the set direction.  This can be used to shift a sprite position if the cursor is outside of the image, or to grow a sprite in one dimension if the cursor is inside the image.
+      - **Insert**: Inserts a copy of the pixels on the cursor line show in the *Preview Pane* and moves the existing lines in the set direction.  This can be used to shift a sprite position if the cursor is outside of the image, or to grow a sprite in one dimension if the cursor is inside the image.
       - **Delete**: Deletes the pixels on the cursor line show in the *Preview Pane* and moves the existing lines in the set direction, filling in a line of transparent pixels on the outer edge.  This can be used to shift a sprite position or shrink a sprite in one dimension.
     - **Direction**: pick a direction for the modification: up, down, right, or left.
     - **Do It!**: This selection will perform the selected action when the B button is pressed.
@@ -39,6 +49,7 @@ In *Draw Mode*, the UP, DOWN, RIGHT, and LEFT button will move the cursor, the A
   - **Size**: 
     - **Width**: Sets the width of the sprite in pixels.  Can range in value from 1 to 32.
     - **Height**: Sets the height of the sprite in pixels.  Can range in value from 1 to 32.  Values not divisible by 8 may not produce good results depending on the library being used to draw the sprite.
+    - Note that changing the size does not clear the buffer, which can produce interesting results. It is recommended to clear all frames after changing the size, but it isn't necessary.
   - **Clear**:
     - **This Frame**: When activated by pressing the B button will set all the pixels in the current frame to transparent.
     - **All Frames**: When activated by pressing the B button will set all the pixels in all frames to transparent.  The number of frames is based on the *Total Frames* setting in the *Frame* sub-menu.
