@@ -33,8 +33,8 @@ void resetSprite() {
   sb.clearSprite();
 
   // Set default parameters
-  menu.sizeWidth = 8;
-  menu.sizeHeight = 8;
+  menu.sizeWidth = 32;
+  menu.sizeHeight = 32;
 
   // Init structures
   menu.newSize();
@@ -183,7 +183,7 @@ void drawScreen() {
   font6.print(canvas.cursorY);
   font6.print(F("\nS: "));
   font6.print(menu.sizeWidth);
-  font6.print(F(" * "));
+  font6.print(F("*"));
   font6.print(menu.sizeHeight);
   font6.print(F("\nF: "));
   font6.print(menu.frameCurrent);
@@ -195,14 +195,16 @@ void drawScreen() {
 
 void drawPreview() {  
   uint8_t frame = menu.previewFrame();
-  uint8_t xoffset=16-menu.sizeWidth/2;
-  uint8_t yoffset=16-menu.sizeHeight/2;
+  uint8_t xoffset=(32-menu.sizeWidth)/2;
+  uint8_t yoffset=(32-menu.sizeHeight)/2;
+  uint16_t xpad = menu.sizeWidth * 16;
+  uint16_t ypad = menu.sizeWidth * 16;
   
   for (uint8_t x=0; x<32; x++) {
     if (menu.previewTile || ((x >= xoffset) && (x<(xoffset+menu.sizeWidth)))) {
       for (uint8_t y=0; y<32; y++) {
         if (menu.previewTile || ((y >= yoffset) && (y<(yoffset+menu.sizeHeight)))) {
-          uint8_t color = sb.readSprite(frame,(32+x-xoffset)%menu.sizeWidth,(32+y-yoffset)%menu.sizeHeight);
+          uint8_t color = sb.readSprite(frame,(xpad+x-xoffset)%menu.sizeWidth,(ypad+y-yoffset)%menu.sizeHeight);
           if (color>=2) {
             arduboy.drawPixel(96+x,y,color==3 ? WHITE : BLACK);        
           }

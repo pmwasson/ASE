@@ -9,12 +9,13 @@ class Canvas {
     void init();
     void draw(bool active);
     bool directionalButtons();
+
+    static const uint8_t canvasWidth = 16; 
+    static const uint8_t canvasHeight = 16;
     
   private:
 
     // Constants
-    static const uint8_t canvasWidth = 16; 
-    static const uint8_t canvasHeight = 16;
     static const uint8_t screenX = 31; 
     static const uint8_t screenY = 0;
     static const uint8_t colorBlack = 2;
