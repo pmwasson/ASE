@@ -109,6 +109,5 @@ void BoxCursor::down() {
 }
 
 void BoxCursor::draw() {
-  arduboy.drawRect(offsetX+cursorX*4,offsetY+cursorY*4,4,4,(arduboy.frameCount&0x1f) < 16 ? WHITE : BLACK);
-  //arduboy.drawRect(offsetX+cursorX*4,offsetY+cursorY*4,4,4);
+  arduboy.drawRect(offsetX+cursorX*4,offsetY+cursorY*4,4,4,(arduboy.frameCount%32) < 16 ? WHITE : BLACK);
 }
