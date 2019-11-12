@@ -57,8 +57,46 @@ In *Draw Mode*, the UP, DOWN, RIGHT, and LEFT button will move the cursor, the A
     - **With Mask**: when selected with the B button will read a design that specifies both the pixel on/off data and the transparency mask data.  Should be used when a design was saved with *With Mask*.
     - **No Mask**: when selected with the B button will read a design that specifies just pixel on/off data.  Should be used when a design was saved with *No Mask*. In this mode, all pixels will either be white or transparent.
     - **Example**: loads a built in example image that can be animated.
-  - **Save**: Saves a design over USB using a serial interface.  The design can be used directly in a Arduboy game or can be loaded back into the editor.  It is suggested that you save often when designing a sprite so you have a backup copy in case of future mistakes.
+  - **Save**: Saves a design over USB using a serial interface.  The design can be used directly in a Arduboy game or can be loaded back into the editor. Each frame will start a new output line. It is suggested that you save often when designing a sprite so you have a backup copy in case of future mistakes.
     - **With Mask**: when selected with the B button will write a design that specifies both the pixel on/off data and the transparency mask data.
     - **No Mask**: when selected with the B button will write a design that specifies just pixel on/off data.
   - **Info**: Shows some information about the application.  The A button will return to the Main Menu.
  
+## Code Example
+
+Here is a complete code example using a saved sprite:
+
+```c++
+const unsigned char PROGMEM sprite_and_mask[] = {
+// For load, cut and paste between START and END, and send over serial port
+// then choose LOAD WITH MASK
+// START
+16,16,
+120,248,140,252,228,252,246,254,162,254,91,255,169,255,21,255,13,255,21,255,173,255,89,255,170,254,242,254,68,252,24,248,3,3,6,7,5,7,13,15,10,15,27,31,22,31,21,31,22,31,21,31,22,31,23,31,26,31,13,15,6,7,3,3,
+120,248,188,252,220,252,238,254,174,254,87,255,167,255,23,255,7,255,23,255,167,255,87,255,174,254,238,254,92,252,24,248,3,3,6,7,5,7,13,15,10,15,27,31,22,31,21,31,22,31,21,31,22,31,23,31,26,31,13,15,6,7,3,3,
+248,248,252,252,124,252,126,254,190,254,63,255,191,255,63,255,63,255,63,255,191,255,63,255,190,254,190,190,60,188,248,248,3,3,6,7,5,7,13,15,10,15,27,31,22,31,21,31,22,31,21,31,22,31,23,31,26,31,13,15,6,7,3,3,
+248,248,252,252,252,252,254,254,254,254,255,255,255,255,255,255,255,255,255,255,255,255,255,255,254,254,254,254,252,252,120,248,2,3,6,7,5,7,13,15,11,15,27,31,23,31,23,31,23,31,23,31,23,31,23,31,27,31,13,15,6,7,3,3
+// END
+};
+
+#include <Arduboy2.h>
+#include <Sprites.h>
+Arduboy2 arduboy;
+Sprites  sprites;
+uint8_t sequence = 100;
+
+void setup() {
+  arduboy.begin();
+  arduboy.setFrameRate(30);
+}
+
+void loop() {
+  if (!(arduboy.nextFrame())) return;
+  arduboy.fillScreen(WHITE);
+  uint8_t frame = sequence < 4 ? sequence : sequence < 7 ? 7 - sequence : 0;
+  if (sequence-- == 0) sequence = random(10,100);
+  sprites.drawPlusMask((WIDTH-16)/2-12,(HEIGHT-16)/2,sprite_and_mask,frame);
+  sprites.drawPlusMask((WIDTH-16)/2+12,(HEIGHT-16)/2,sprite_and_mask,frame);
+  arduboy.display();
+}
+```
