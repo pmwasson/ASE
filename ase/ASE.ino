@@ -33,8 +33,8 @@ void resetSprite() {
   sb.clearSprite();
 
   // Set default parameters
-  menu.sizeWidth = 32;
-  menu.sizeHeight = 32;
+  menu.sizeWidth = 16;
+  menu.sizeHeight = 16;
 
   // Init structures
   menu.newSize();
@@ -113,6 +113,7 @@ void loop() {
           }
           menu.newSize();
         }
+        canvas.init();
         mode = modeMainMenu; // After loading
       }
       else if (menu.mainSelection == menu.mainSize) {
