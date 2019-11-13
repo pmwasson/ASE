@@ -199,7 +199,7 @@ void drawPreview() {
   uint8_t xoffset=(32-menu.sizeWidth)/2;
   uint8_t yoffset=(32-menu.sizeHeight)/2;
   uint16_t xpad = menu.sizeWidth * 16;
-  uint16_t ypad = menu.sizeWidth * 16;
+  uint16_t ypad = menu.sizeHeight * 16;
   
   for (uint8_t x=0; x<32; x++) {
     if (menu.previewTile || ((x >= xoffset) && (x<(xoffset+menu.sizeWidth)))) {
