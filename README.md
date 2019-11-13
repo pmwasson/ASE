@@ -78,11 +78,11 @@ The application starts out in the *Main Menu Mode*, where the UP and DOWN button
  
 ## Notes
 
-- *Loading* and *Saving* can do done using the Arduino serial monitor when the Arduboy is connected to a PC using a USB cable.  To bring up the serial monitor, launch the Arduino platform and click on the microscope looking icon in the upper right corner. Saving the design will output the results in the serial monitor.  This can be cut and pasted directly into code, like the *Code Example* below.  To load a design, select the text between the *BEGIN* and *END* comments (don't include the lines with *BEGIN* or *END*) and paste it into the serial monitor input line and click send.  Then select load on the *Arduboy Sprite Editor*.
+- *Loading* and *Saving* is done using the Arduino serial monitor when the Arduboy is connected to a computer using a USB cable.  To bring up the serial monitor, launch the Arduino platform and click on the microscope looking icon in the upper right corner. Saving the design will output the results in the serial monitor.  This can be cut and pasted directly into code, like the *Code Example* below.  To load a design, select the text between the *BEGIN* and *END* comments (don't include the lines with *BEGIN* or *END*) and paste it into the serial monitor input line and click send.  Then select load on the *Arduboy Sprite Editor*.
 
 ## Code Example
 
-Here is a complete code example using a saved sprite:
+Here is a complete code example starting with a saved sprite copied from the Arduino serial monitor output:
 
 ```c++
 const unsigned char PROGMEM sprite_and_mask[] = {
