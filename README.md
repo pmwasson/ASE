@@ -3,6 +3,16 @@
 ## Overview
 ASE - a sprite editor for Arduboy games that runs on the Arduboy.
 
+_Example of Drawing Screen:_
+
+![Example of drawing](instructions1.png)
+
+
+_Example of Sub-Menu Screen:_
+
+![Example of Sub-Menu](instructions2.png)
+
+
 ## Layout
 - The screen is divided into 4 parts:
 
@@ -26,7 +36,11 @@ ASE - a sprite editor for Arduboy games that runs on the Arduboy.
 - **Main Menu Mode**:
 The application starts out in the *Main Menu Mode*, where the UP and DOWN buttons will move the cursor to choose a menu item and the B button will select then item. If the DRAW menu item is selected, then the application will be in *Draw Mode*, if another main menu item is selected then the application will be in *Sub Menu Mode*.
 - **Draw Mode**:
-In *Draw Mode*, the UP, DOWN, RIGHT, and LEFT button will move the cursor, the A button will return to *Main Menu Mode*, and the B button will alter the color of the pixel under the cursor.  The pixel can be in one of 3 colors: Transparent, White or Black.  Pressing the B button will cycle through the 3 colors.  If the B button is held down, the last color set will continue to set any other pixel the cursor is moved to.  This is an easy way to color a block of pixels the same. If a directional button is held down, after a short delay the cursor will repeatedly move.
+  - In *Draw Mode*, the UP, DOWN, RIGHT, and LEFT button will move the cursor, the A button will return to *Main Menu Mode*, and the B button will alter the color of the pixel under the cursor.  
+  - The pixel can be in one of 3 colors: Transparent, White or Black.  Pressing the B button will cycle through the 3 colors.  If the B button is held down, the last color set will continue to set any other pixel the cursor is moved to.  This is an easy way to color a block of pixels the same. 
+  - If a directional button is held down, after a short delay the cursor will repeatedly move.
+  - The cursor will wrap around if going past the edge of the sprite.
+  - The *Draw Pane* contains 16 x 16 pixels.  If the sprite is smaller than 16 in a dimension, gray boxes will fill in the unused area. If the sprite is larger than 16 in a dimension, moving the cursor off the pane will scroll the pixels. A squiggle line on the edge is used to show the direction in which there are more pixels.
 - **Sub Menu Mode**: In *Sub Menu Mode*, the UP and DOWN buttons will move the cursor to choose an item. The A button will return to the *Main Menu Mode*. For items with a value, the LEFT and RIGHT button will change the value. Certain items will perform an action when the B button is pressed.
   - **Frame**: 
     - **Current**: lets you pick the current frame to edit.
@@ -36,8 +50,8 @@ In *Draw Mode*, the UP, DOWN, RIGHT, and LEFT button will move the cursor, the A
   - **Modify**: the *Modify* sub menu lets you change the current frame of the sprite based on the cursor position and a set direction. The cursor position is set in the *Draw Mode*. The cursor position is shown in the *Preview Pane* as a horizontal line if the direction is up or down and as a vertical line if the direction is left or right.
     - **Mode**:
       - **Flip**: if the direction is up or down, will flip the frame vertically.  If the direction is right or left, will flip the frame horizontally.
-      - **Insert**: Inserts a copy of the pixels on the cursor line show in the *Preview Pane* and moves the existing lines in the set direction.  This can be used to shift a sprite position if the cursor is outside of the image, or to grow a sprite in one dimension if the cursor is inside the image.
-      - **Delete**: Deletes the pixels on the cursor line show in the *Preview Pane* and moves the existing lines in the set direction, filling in a line of transparent pixels on the outer edge.  This can be used to shift a sprite position or shrink a sprite in one dimension.
+      - **Insert**: Inserts a copy of the pixels on the cursor line show in the *Preview Pane* and moves the existing lines in the set direction from the cursor.  This can be used to shift a sprite position if the cursor is outside of the image, or to grow a sprite in one dimension if the cursor is inside the image.
+      - **Delete**: Deletes the pixels on the cursor line show in the *Preview Pane* and moves the existing lines in the set direction from the cursor, filling in a line of transparent pixels on the outer edge.  This can be used to shift a sprite position or shrink a sprite in one dimension.
     - **Direction**: pick a direction for the modification: up, down, right, or left.
     - **Do It!**: This selection will perform the selected action when the B button is pressed.
   - **Preview**:
@@ -62,6 +76,10 @@ In *Draw Mode*, the UP, DOWN, RIGHT, and LEFT button will move the cursor, the A
     - **No Mask**: when selected with the B button will write a design that specifies just pixel on/off data.
   - **Info**: Shows some information about the application.  The A button will return to the Main Menu.
  
+## Notes
+
+- *Loading* and *Saving* can do done using the Arduino serial monitor when the Arduboy is connected to a PC using a USB cable.  To bring up the serial monitor, launch the Arduino platform and click on the microscope looking icon in the upper right corner. Saving the design will output the results in the serial monitor.  This can be cut and pasted directly into code, like the *Code Example* below.  To load a design, select the text between the *BEGIN* and *END* comments (don't include the lines with *BEGIN* or *END*) and paste it into the serial monitor input line and click send.  Then select load on the *Arduboy Sprite Editor*.
+
 ## Code Example
 
 Here is a complete code example using a saved sprite:
