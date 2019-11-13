@@ -91,7 +91,7 @@ bool Menu::subMenu() {
                     "DIR\n"  // LEFT< DOWN, UP, RIGHT
                     "DO IT!"
                     ));
-      font6.setCursor(subMenuRightShort+5,top);
+      font6.setCursor(subMenuRightShort+5,top+1);
 
       if (modifyTransform == modifyTransformFlip) {
         font6.print(F("FLIP\n"));
