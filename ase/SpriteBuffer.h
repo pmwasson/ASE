@@ -19,6 +19,10 @@ class SpriteBuffer {
 
     static const uint16_t bufferSize = 512;
     uint8_t sprite[bufferSize];
+
+  private:
+    void printHex(uint8_t num);
+    uint8_t parseInt();
 };
 
     

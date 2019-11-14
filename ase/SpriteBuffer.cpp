@@ -78,32 +78,88 @@ void SpriteBuffer::save(bool withMask) {
   Serial.print(menu.sizeHeight);
   for (uint8_t frame=0; frame < menu.frameTotal; frame++) {
     Serial.println(F(","));
-    Serial.print(sprite[offset]);
+    printHex(sprite[offset]);
     offset += increment;
     for (uint16_t i=0 ; i < loopSize-1; i++) {
       Serial.print(F(","));
-      Serial.print(sprite[offset]);
+      printHex(sprite[offset]);
       offset += increment;
     }
   }
   Serial.println(F("\n// END\n};"));
 }
 
+void SpriteBuffer::printHex(uint8_t num) {
+  Serial.print(F("0x"));
+  if (num < 0x10) {
+    Serial.print(F("0"));
+  }
+  Serial.print(num, HEX);
+}
+
 uint16_t SpriteBuffer::load(bool withMask) {
   
-  menu.sizeWidth = Serial.parseInt();
-  menu.sizeHeight = Serial.parseInt();
+  menu.sizeWidth = parseInt();
+  menu.sizeHeight = parseInt();
   menu.frameCurrent = 0;
   
   uint16_t offset = 0;
   while(Serial.available() && (offset < menu.bufferSize)) {
-    sprite[offset++] = Serial.parseInt();
+    sprite[offset++] = parseInt();
     if (!withMask) {
       sprite[offset] = sprite[offset-1];
       offset++;
     }
   }
+  // Dump out results
+  if (offset>0) {
+   Serial.print(F("// Load finished\n// Width = "));
+   Serial.println(menu.sizeWidth);
+   Serial.print(F("// Height = "));
+   Serial.println(menu.sizeHeight);
+   Serial.print(F("// Pixel bytes read = "));
+   Serial.println(offset);
+  }
+  else {
+    Serial.println(F("// Nothing loaded. Be sure to hit 'send' first and then 'load' on the Arduboy."));
+  }
+  
   return(offset);
+}
+
+uint8_t SpriteBuffer::parseInt() {
+  uint8_t result = 0;
+  uint8_t base = 10;
+
+  // skip until see a digit
+  while(true) {
+    const int next = Serial.peek();
+    if (next<0) 
+      return result;
+    const char nextChar = static_cast<char>(next);
+    if ((nextChar >= '0' && nextChar <= '9'))
+      break;
+    else
+      Serial.read();  
+  }
+
+  // read until a non-digit
+  while(true) {
+    const int next = Serial.read();
+    if (next<0)
+      return result;
+    const char nextChar = static_cast<char>(next);
+    if (nextChar >= '0' && nextChar <= '9')
+      result = result*base + (nextChar - '0');
+    else if (nextChar >= 'a' && nextChar <= 'f')
+      result = result*base + (nextChar - 'a' + 10);
+    else if (nextChar >= 'A' && nextChar <= 'F')
+      result = result*base + (nextChar - 'A' + 10);
+    else if (nextChar == 'x' || nextChar == 'X')
+      base=16;
+    else
+      return result;
+  }
 }
 
 void SpriteBuffer::loadExample() {  

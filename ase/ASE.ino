@@ -109,9 +109,9 @@ void loop() {
             resetSprite();
           }
           else {
+            menu.newSize();
             menu.frameTotal = loadSize/menu.frameSize(withMask);
           }
-          menu.newSize();
         }
         canvas.init();
         mode = modeMainMenu; // After loading
