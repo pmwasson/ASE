@@ -11,13 +11,20 @@ class SpriteBuffer {
     void copyFrame(uint8_t fromFrame, uint8_t toFrame);
     void swapFrame(uint8_t frameA, uint8_t frameB);
     void save(bool withMask);
+    void saveEEPROM();
     uint16_t load(bool withMask);
-    void loadExample();
+    uint16_t loadEEPROM();
+    uint16_t loadExample();
     void flipFrame(uint8_t frame);
     void deleteLine(uint8_t frame); 
     void insertLine(uint8_t frame);
 
     static const uint16_t bufferSize = 512;
+    static const uint16_t eepromStart = 512-3;
+    static const uint16_t eepromFrames = eepromStart+0;
+    static const uint16_t eepromWidth  = eepromStart+1;
+    static const uint16_t eepromHeight = eepromStart+2;
+    static const uint16_t eepromSprite = eepromStart+3;
     uint8_t sprite[bufferSize];
 
   private:

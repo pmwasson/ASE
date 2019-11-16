@@ -169,18 +169,20 @@ bool Menu::subMenu() {
       }
       return false;
     case mainLoad:
-      font6.setCursor(subMenuLeft+1,top+1);
+      font6.setCursor(subMenuLeft+1,top+1-7);
       font6.print(F("WITH MASK\n"
                     "NO MASK\n"
+                    "EEPROM\n"
                     "EXAMPLE"));
-      highlight(subSelection,top,subMenuLeft,subMenuRight,true);
+      highlight(subSelection,top-7,subMenuLeft,subMenuRight,true);
       readSelectButtons(subSelection,loadMenuItems);
       return arduboy.justPressed(B_BUTTON);
     case mainSave:
-      font6.setCursor(subMenuLeft+1,top+1);
+      font6.setCursor(subMenuLeft+1,top+1-7);
       font6.print(F("WITH MASK\n"
-                    "NO MASK"));
-      highlight(subSelection,top,subMenuLeft,subMenuRight,true);
+                    "NO MASK\n"
+                    "EEPROM\n"));
+      highlight(subSelection,top-7,subMenuLeft,subMenuRight,true);
       readSelectButtons(subSelection,saveMenuItems);
       return arduboy.justPressed(B_BUTTON);
 
@@ -188,7 +190,7 @@ bool Menu::subMenu() {
       font6.setCursor(subMenuLeft+1,1);      
       font6.print(F("ARDUBOY SPRITE\n"
                     "EDITOR (ASE)\n"
-                    "VERSION 0.2\n\n"
+                    "VERSION 0.3\n\n"
                     "PAUL WASSON,\n"
                     "NOV 2019\n\n"
                     "GAME JAM 4\n"

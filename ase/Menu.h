@@ -77,7 +77,8 @@ class Menu {
 
     static const uint8_t subSerialWithMask = 0;
     static const uint8_t subSerialNoMask = 1;
-    static const uint8_t subSerialExample = 2;
+    static const uint8_t subSerialEEPROM = 2;
+    static const uint8_t subSerialExample = 3;
 
     // Constants
     static const uint8_t  minWidth = 1;
@@ -101,8 +102,8 @@ class Menu {
     static const uint8_t clearMenuItems = 2; 
     static const uint8_t modifyMenuItems = 3; 
     static const uint8_t previewMenuItems = 3; 
-    static const uint8_t loadMenuItems = 3;
-    static const uint8_t saveMenuItems = 2;
+    static const uint8_t loadMenuItems = 4;
+    static const uint8_t saveMenuItems = 3;
 
     void highlight(uint8_t selection, uint8_t top, uint8_t left, uint8_t right, bool blink);
     bool readSelectButtons(uint8_t &selection, uint8_t selectionMax);

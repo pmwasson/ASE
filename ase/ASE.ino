@@ -93,25 +93,34 @@ void loop() {
         mode = modeMainMenu; // After clearing, return
       }
       else if (menu.mainSelection == menu.mainSave) {
-        sb.save(menu.subSelection == menu.subSerialWithMask);
+        if (menu.subSelection == menu.subSerialEEPROM) {
+          sb.saveEEPROM();
+        }
+        else {
+          sb.save(menu.subSelection == menu.subSerialWithMask);
+        }
         mode = modeMainMenu; // After saving return
       }
       else if (menu.mainSelection == menu.mainLoad) {
+        uint16_t loadSize = 0;
+        bool withMask = true;
         if (menu.subSelection == menu.subSerialExample) {
-          sb.loadExample();
+          loadSize = sb.loadExample();
+        }
+        else if (menu.subSelection == menu.subSerialEEPROM) {
+          loadSize = sb.loadEEPROM();
         }
         else {
-          bool withMask = menu.subSelection == menu.subSerialWithMask;
-          uint16_t loadSize = sb.load(withMask);
-
-          // Limited error checking
-          if ((menu.sizeWidth < menu.minWidth) || (menu.sizeWidth > menu.maxWidth) || (menu.sizeHeight < menu.minHeight) || (menu.sizeHeight > menu.maxHeight)) {
-            resetSprite();
-          }
-          else {
-            menu.newSize();
-            menu.frameTotal = loadSize/menu.frameSize(withMask);
-          }
+          withMask = menu.subSelection == menu.subSerialWithMask;
+          loadSize = sb.load(withMask);
+        }
+        // Limited error checking
+        if ((menu.sizeWidth < menu.minWidth) || (menu.sizeWidth > menu.maxWidth) || (menu.sizeHeight < menu.minHeight) || (menu.sizeHeight > menu.maxHeight)) {
+          resetSprite();
+        }
+        else {
+          menu.newSize();
+          menu.frameTotal = loadSize/menu.frameSize(withMask);
         }
         canvas.init();
         mode = modeMainMenu; // After loading

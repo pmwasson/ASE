@@ -97,6 +97,8 @@ void SpriteBuffer::printHex(uint8_t num) {
   Serial.print(num, HEX);
 }
 
+
+
 uint16_t SpriteBuffer::load(bool withMask) {
   
   menu.sizeWidth = parseInt();
@@ -162,7 +164,7 @@ uint8_t SpriteBuffer::parseInt() {
   }
 }
 
-void SpriteBuffer::loadExample() {  
+uint16_t SpriteBuffer::loadExample() {  
   menu.sizeWidth = (uint8_t)pgm_read_byte_near(exampleSprite+0);
   menu.sizeHeight = (uint8_t)pgm_read_byte_near(exampleSprite+1);
   menu.frameCurrent = 0;
@@ -172,6 +174,36 @@ void SpriteBuffer::loadExample() {
   for (uint16_t offset=0; offset < (2 + menu.frameSize(true) * menu.frameTotal); offset++) {
     sprite[offset] = (uint8_t)pgm_read_byte_near(exampleSprite+offset+2);
   }
+}
+
+void SpriteBuffer::saveEEPROM() {
+
+  EEPROM.put(eepromFrames,menu.frameTotal);
+  EEPROM.put(eepromWidth,menu.sizeWidth);
+  EEPROM.put(eepromHeight,menu.sizeHeight);
+
+  for (uint16_t offset=0; offset < menu.bufferSize; offset++) {
+      EEPROM.put(eepromSprite+offset,sprite[offset]);
+  }
+}
+
+uint16_t SpriteBuffer::loadEEPROM() {
+
+  EEPROM.get(eepromFrames,menu.frameTotal);
+  EEPROM.get(eepromWidth,menu.sizeWidth);
+  EEPROM.get(eepromHeight,menu.sizeHeight);
+ 
+  menu.frameCurrent = 0;
+  menu.newSize();
+
+  uint16_t offset = 0;
+  if (menu.frameSize(true) * menu.frameTotal <= menu.bufferSize) {
+    for (offset=0; offset < menu.frameSize(true) * menu.frameTotal; offset++) {
+      EEPROM.get(eepromSprite+offset,sprite[offset]);
+    }
+  }
+
+  return offset;
 }
 
 void SpriteBuffer::flipFrame(uint8_t frame) {
