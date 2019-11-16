@@ -70,10 +70,12 @@ The application starts out in the *Main Menu Mode*, where the UP and DOWN button
   - **Load**: Either loads an example or load a design over USB using a serial interface.
     - **With Mask**: when selected with the B button will read a design that specifies both the pixel on/off data and the transparency mask data.  Should be used when a design was saved with *With Mask*.
     - **No Mask**: when selected with the B button will read a design that specifies just pixel on/off data.  Should be used when a design was saved with *No Mask*. In this mode, all pixels will either be white or transparent.
+    - **EEPROM**: loads a sprite off the local storage
     - **Example**: loads a built in example image that can be animated.
   - **Save**: Saves a design over USB using a serial interface.  The design can be used directly in a Arduboy game or can be loaded back into the editor. Each frame will start a new output line. It is suggested that you save often when designing a sprite so you have a backup copy in case of future mistakes.
     - **With Mask**: when selected with the B button will write a design that specifies both the pixel on/off data and the transparency mask data.
     - **No Mask**: when selected with the B button will write a design that specifies just pixel on/off data.
+    - **EEPROM**: save a sprite to the local storage
   - **Info**: Shows some information about the application.  The A button will return to the Main Menu.
  
 ## Notes
